@@ -54,6 +54,7 @@ type DomainScore struct {
 }
 
 // Get the score for a domain that's already been set
+// TODO: Switch to LongestPrefix match in order to respond to partial matches
 func (rp ReputationProvider) GetDomainScore(d string) (*DomainScore, bool) {
 	v, ok := rp.rt.Get([]byte(d))
 	if !ok {

@@ -14,7 +14,12 @@ type HealthResponse struct {
 }
 
 func main() {
-	NewRouter([]Handler{Handler{"/health", "GET", handleHealthCheck}})
+	api := NewApiHandler("/app/resources/domains.csv")
+	NewRouter([]Handler{
+		Handler{"/health", "GET", handleHealthCheck},
+		Handler{"/urlinfo/{url}", "GET", api.GetDomainHandler},
+		Handler{"/update/{score}/{url}", "POST", api.UpdateDomainHandler},
+	})
 }
 
 func handleHealthCheck(w http.ResponseWriter, r *http.Request) {

@@ -15,6 +15,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 
 FROM scratch
+ADD  resources/ /app/resources/
 COPY --from=builder /app/reputation /app/
 EXPOSE 8080
 ENTRYPOINT ["/app/reputation"]
