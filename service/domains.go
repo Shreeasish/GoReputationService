@@ -53,6 +53,7 @@ type DomainScore struct {
 	Score  string `json:"Score"`
 }
 
+// Get the score for a domain that's already been set
 func (rp ReputationProvider) GetDomainScore(d string) (*DomainScore, bool) {
 	v, ok := rp.rt.Get([]byte(d))
 	if !ok {
@@ -65,4 +66,15 @@ func (rp ReputationProvider) GetDomainScore(d string) (*DomainScore, bool) {
 		Domain: d,
 		Score:  v.(string),
 	}, ok
+}
+
+/**
+ * Update or add a new domain and score to an existing trie.
+ *
+ * Updates do not need any synchronization here since we are using an immutable
+ * Data Structure. Any queries made while nodes are being added will be sound
+ * since no changes will be made to the original
+ */
+func (rp ReputationProvider) AddDomain(ds *DomainScore) {
+	rp.rt, _, _ = rp.rt.Insert([]byte(ds.Domain), ds.Score)
 }
