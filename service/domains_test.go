@@ -2,20 +2,16 @@ package main
 
 import "testing"
 
-func TestHelloWorld(t *testing.T) {
-	// t.Fatal("not implemented")
-}
-
 func TestInitializeFromPath(t *testing.T) {
 	d := map[string]int{"www.baddomain.csv": 1,
-											"www.evildomain.csv": 5,
-											"www.java.com": 10,
-											"www.log4j.com": 9,
-										}
-	
-	r := InitializeFromPath("./test_resources/test_domains.csv")
-	it := r.radixTree.Root().Iterator()
-	if (r.Count != 4) {
+		"www.evildomain.csv": 5,
+		"www.java.com":       10,
+		"www.log4j.com":      9,
+	}
+
+	rp := InitializeFromPath("./test_resources/test_domains.csv")
+	it := rp.rt.Root().Iterator()
+	if rp.Count != 4 {
 		t.Fatalf("Assets read incorrectly")
 	}
 
@@ -23,5 +19,17 @@ func TestInitializeFromPath(t *testing.T) {
 		if _, ok := d[string(key)]; !ok {
 			t.Fatalf("Assets read incorrectly")
 		}
+	}
+}
+
+func TestGetDomain(t *testing.T) {
+	rp := InitializeFromPath("./test_resources/test_domains.csv")
+	ds, ok := rp.GetDomainScore("www.java.com")
+	if !ok || ds.Domain != "www.java.com" {
+		t.Fatalf("Unable to retrieve domain")
+	}
+
+	if ds, ok = rp.GetDomainScore("www.gooddomain.com"); ok {
+		t.Fatalf("Non existent domain returned ok")
 	}
 }

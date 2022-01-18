@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"log"
 	"os"
-	"time"
 	"strings"
+	"time"
 
 	iradix "github.com/hashicorp/go-immutable-radix"
 )
@@ -13,7 +13,7 @@ import (
 type ReputationProvider struct {
 	Count       int
 	LastUpdated string
-	radixTree   *iradix.Tree
+	rt          *iradix.Tree
 }
 
 // Initialize an iradix tree from a list of domains from a file
@@ -44,12 +44,25 @@ func InitializeFromPath(path string) *ReputationProvider {
 	return &ReputationProvider{
 		Count:       c,
 		LastUpdated: time.Now().String(),
-		radixTree:   r,
+		rt:          r,
 	}
 }
 
-// TODO: 
-// Update function
+type DomainScore struct {
+	Domain string `json:"Domain"`
+	Score  string `json:"Score"`
+}
 
-// TODO: 
-// Retrieve function
+func (rp ReputationProvider) GetDomainScore(d string) (*DomainScore, bool) {
+	v, ok := rp.rt.Get([]byte(d))
+	if !ok {
+		return nil, false
+	}
+
+	// Return both domain and score even though domain
+	// is known to the caller for ease of use
+	return &DomainScore{
+		Domain: d,
+		Score:  v.(string),
+	}, ok
+}
