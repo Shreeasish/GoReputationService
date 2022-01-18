@@ -33,3 +33,13 @@ func TestGetDomain(t *testing.T) {
 		t.Fatalf("Non existent domain returned ok")
 	}
 }
+
+func AddDomains(t *testing.T) {
+	rp := InitializeFromPath("./test_resources/test_domains.csv")
+	rp.AddDomain(&DomainScore{"www.newdomain.com", "10"})
+
+	ds, ok := rp.GetDomainScore("www.newdomain.com")
+	if !ok || ds.Score != "10" {
+		t.Fatalf("Non existent domain returned ok")
+	}
+}
