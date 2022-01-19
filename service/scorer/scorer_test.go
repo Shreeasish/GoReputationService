@@ -43,18 +43,18 @@ func TestGetDomain(t *testing.T) {
 	}{
 		{
 			`http://www.bad.com,2`,
-			`http://www.bad.com`,
+			`www.bad.com`,
 			2,
 		},
 		{
 			`https://www.known.com,10`,
-			`https://www.unknown.com`,
+			`www.unknown.com`,
 			0,
 		},
 		{
 			`https://www.known.com,5
 https://www.bad.com,10`,
-			`https://www.known.com`,
+			`www.known.com`,
 			5,
 		},
 	}
@@ -84,36 +84,36 @@ func TestUpdateDomain(t *testing.T) {
 			lines: `http://www.known.com,2`,
 			updates: []update{
 				{
-					`http://www.known.com`, 5,
+					`www.known.com`, 5,
 				},
 			},
-			url:   `http://www.known.com`,
+			url:   `www.known.com`,
 			score: 5,
 		},
 		{
 			lines: `http://www.known.com,2`,
 			updates: []update{
 				{
-					`http://www.new.com`, 5,
+					`www.new.com`, 5,
 				},
 			},
-			url:   `http://www.known.com`,
+			url:   `www.known.com`,
 			score: 2,
 		},
 		{
 			lines: `http://www.known.com,2`,
 			updates: []update{
 				{
-					`http://www.new.com`, 5,
+					`www.new.com`, 5,
 				},
 				{
-					`http://www.new.com`, 3,
+					`www.new.com`, 3,
 				},
 				{
-					`http://www.new.com`, 9,
+					`www.new.com`, 9,
 				},
 			},
-			url:   `http://www.new.com`,
+			url:   `www.new.com`,
 			score: 9,
 		},
 	}

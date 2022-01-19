@@ -29,6 +29,6 @@ func main() {
 	router.NewRouter([]router.Handler{
 		{"/health", "GET", api.HandleHealthCheck},
 		{"/urlinfo/url/{url}", "GET", api.GetScoreHandler},
-		{"/urlinfo/update/score/{score}/url/{url}", "GET", api.UpdateDomainHandler},
+		{"/urlinfo/update", "POST", api.UpdateDomainHandler},
 	})
 }

@@ -100,7 +100,7 @@ func (rp DomainScorer) AddDomain(domain string, score int64) {
 }
 
 func parseLine(line string) (string, int64, error) {
-	// Format: www.baddomain.com,3
+	// Format: http://www.baddomain.com,3
 	s := strings.Split(line, ",")
 	if len(s) != 2 {
 		return "", 0, errors.New(fmt.Sprintf(errStr, line))
@@ -109,10 +109,9 @@ func parseLine(line string) (string, int64, error) {
 	if err != nil {
 		return "", 0, errors.New(fmt.Sprintf(errStr, err))
 	}
-	// Check format but do use returned Url object
-	_, err = url.ParseRequestURI(s[0])
+	uri, err := url.ParseRequestURI(s[0])
 	if err != nil {
 		return "", 0, errors.New(fmt.Sprintf(errStr, err))
 	}
-	return s[0], i, nil
+	return uri.Hostname(), i, nil
 }

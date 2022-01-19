@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -16,9 +17,6 @@ type ApiHandler struct {
 	rp *scorer.DomainScorer
 }
 
-// Use dependency injection to initialize DomainScorer
-// Inject DomainScorer into ApiHandler
-// TODO: Package name new -> *ApiHandler, Error
 func New(r *scorer.DomainScorer) *ApiHandler {
 	return &ApiHandler{
 		rp: r,
@@ -63,27 +61,34 @@ type UpdateDomainHandlerResponse struct {
 	Message string `json:"Message"`
 }
 
+type Update struct {
+	Url   string `json:"url"`
+	Score string `json:"score"`
+}
+
 // UpdateDomainHandler handles requests to update or add new domains with scores
 func (h ApiHandler) UpdateDomainHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	s, ok := vars["score"] // if ok
-	if !ok {
-		sendBadRequestResponse(w, "Required parameter 'score' not found")
+	var u Update
+	if r.Body == nil {
+		log.Printf("Request with invalid body")
+		sendBadRequestResponse(w, "Invalid request body")
 		return
 	}
-	url, ok := vars["url"] // if ok
-	if !ok {
-		sendBadRequestResponse(w, "Required parameter 'url' not found")
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&u); err != nil {
+		log.Printf("Unable to parse message body %v", err)
+		sendBadRequestResponse(w, "Unable to parse request payload")
 		return
 	}
+	defer r.Body.Close()
 
-	// Use params instead of struct
-	i, err := strconv.ParseInt(s, 10, 64)
+	i, err := strconv.ParseInt(u.Score, 10, 64)
 	if err != nil {
-		sendBadRequestResponse(w, "Unable to parse domain score as int")
+		log.Printf("Unable to parse score %v", err)
+		sendBadRequestResponse(w, fmt.Sprintf("Invalid domain score %v", err))
 		return
 	}
-	h.rp.AddDomain(url, i)
+	h.rp.AddDomain(u.Url, i)
 
 	res, err := json.Marshal(UpdateDomainHandlerResponse{
 		Message: "Domain updated successfully",
