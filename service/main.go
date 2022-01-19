@@ -1,36 +1,34 @@
 package main
 
 import (
-	"encoding/json"
-	"net/http"
-	"time"
+	"flag"
+	"log"
+	"os"
+
+	"github.com/Shreeasish/reputation/handler"
+	"github.com/Shreeasish/reputation/router"
+	"github.com/Shreeasish/reputation/scorer"
 )
 
-var domains = []string{"www.baddomain.com", "www.baddomain2.com"}
-
-type HealthResponse struct {
-	Count       int    `json:"DomainCount"`
-	LastUpdated string `json:"LastUpdateTime"`
-}
+var (
+	domainList = flag.String("domain_list", "/app/resources/domains.csv", "Path to csv of domains to load on startup")
+)
 
 func main() {
-	api := NewApiHandler("/app/resources/domains.csv")
-	NewRouter([]Handler{
-		Handler{"/health", "GET", handleHealthCheck},
-		Handler{"/urlinfo/{url}", "GET", api.GetDomainHandler},
-		Handler{"/update/{score}/{url}", "POST", api.UpdateDomainHandler},
-	})
-}
-
-func handleHealthCheck(w http.ResponseWriter, r *http.Request) {
-	hr := HealthResponse{
-		Count:       len(domains),
-		LastUpdated: time.Now().String(),
-	}
-	res, err := json.Marshal(hr)
+	f, err := os.Open(*domainList)
 	if err != nil {
-		panic(err)
+		log.Fatalf("%v", err)
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(res)
+	defer f.Close()
+
+	scorer, err := scorer.New(f)
+	if err != nil {
+		log.Fatalf("Unable to initialize scorer: %v", err)
+	}
+	api := handler.New(scorer)
+	router.NewRouter([]router.Handler{
+		{"/health", "GET", api.HandleHealthCheck},
+		{"/urlinfo/url/{url}", "GET", api.GetScoreHandler},
+		{"/urlinfo/update/score/{score}/url/{url}", "GET", api.UpdateDomainHandler},
+	})
 }
