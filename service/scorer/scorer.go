@@ -22,7 +22,9 @@ type DomainScore struct {
 	// TODO: Add status as enums
 }
 
-// Document Struct/public member
+// DomainScorer is the backing datastructure for service.rt is a RadixTree that
+// interns strings to save space and provides insertions and retrievals in O(k) time
+// where k is the maximum length of a string.
 type DomainScorer struct {
 	Count int
 	// LastUpdated ..
@@ -63,16 +65,16 @@ func New(reader io.Reader) (*DomainScorer, error) {
 	}, nil
 }
 
-// Get the score for a domain that's already been set
-// TODO: Switch to LongestPrefix match in order to respond to partial matches
-// net/url can be used to match fragments of the incoming url to provide
-// more robust checks such hostnames etc.
+// GetDomainScore returns the domain and score for a value that's already been set.
+// Unknown domains are returned as 0 (not malicious) so callers may proceed.
+//
+// TODO: Switch to using a longest prefix match when retrieving strings so that matches can be made against
+// domain names even when the full path is not known to the system.
+// i.e. "www.baddomain.com/bad/path" can be recognized as malicious by matching with a known entry "www.baddomain.com"
 func (rp DomainScorer) GetDomainScore(d string) *DomainScore {
 	v, ok := rp.rt.Get(d)
 	// Handle uknown domains with 0
 
-	// Return both domain and score even though domain
-	// is known to the caller for ease of use
 	if !ok {
 		return &DomainScore{
 			Domain: d,

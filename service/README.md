@@ -1,3 +1,13 @@
+### Description
+A simple api service that provides reputations for queried domains. The service
+uses a radix tree as the backing datastructure. The radix tree provides an
+efficient storage solution for domains which can vary by a few characters as we
+often see with malicious domains. 
+
+The service implicitly allows domains that are unrecognized. The design
+decision here is to only track and stop accesses to known malicious domains
+instead of building reputations for all possible domains.
+
 ### Files
 1. `domains.go` Abstraction around [Hashicorp's immutable radix trie](https://pkg.go.dev/github.com/hashicorp/go-immutable-radix)
 datastructure. Exposes read and update APIs only
@@ -7,9 +17,8 @@ that provides handlers for incoming api calls
 4. `router.go` Abstraction layer around [Gorilla Mux](https://github.com/gorilla/mux)
 
 ### TODO
-1. Restructure into `domains` and `router` into their own modules
-2. Rename `main.go` to `wiring.go` or similar
-3. Integration tests for
-  1.`router.go` and `main.go`
-  2.`main.go` and `handler.go`
-4. Currently only supports exact matches. Use available prefix match apis to support subdomains.
+1. Currently only supports exact matches. Use available prefix match apis to support subdomains.
+2. Updates are not persistent. Introduce a persistent storage solution like DynamoDB.
+3. Use RPC for queries instead of HTTP. Since we expect this service to be called for any outbound request, performance is critical.
+4. Switch to an immutable radix tree and use CAS operations to improve performance. Currently the system synchronizes access to the tree when
+   updates are made to it. Instead of using a lock, build the tree outside a synchronization block and only swap the pointer as a CAS operation.
