@@ -1,4 +1,4 @@
-package main
+package router
 
 import (
 	"context"
@@ -33,7 +33,7 @@ func NewRouter(hs []Handler) {
 	}
 
 	go func() {
-		log.Println("Starting server")
+		log.Println("Starting server on port 8080")
 		if err := server.ListenAndServe(); err != nil {
 			log.Fatal(err)
 		}

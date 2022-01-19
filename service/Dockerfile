@@ -1,7 +1,8 @@
 # Multi-stage layout
-FROM golang:1.12 as builder
+FROM golang:1.17 as builder
 
 ENV GO111MODULE=on
+ENV GOPROXY direct
 
 WORKDIR /app
 
