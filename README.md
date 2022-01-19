@@ -1,3 +1,6 @@
+A simple api service that provides reputations for queried domains.
+Visit /service/README.md for more details
+
 ### Requirements
 
 1. Docker
@@ -11,5 +14,3 @@
 2. Run `npm install` to install all dependencies
 3. Run `cdk bootstrap` within `infra`
 4. Run `cdk deploy` within `infra`
-
-
