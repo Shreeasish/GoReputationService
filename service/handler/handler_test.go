@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -33,19 +34,15 @@ http://www.google.com,0`
 }
 
 func TestUpdateHandler(t *testing.T) {
-	r, _ := http.NewRequest("PUT", "/urlinfo/update/score/2/url/www.google.com", nil)
+	var jsonStr = []byte(`{"url":"www.bad.com", "score":"10"}`)
+	r, _ := http.NewRequest("POST", "/urlinfo/update", bytes.NewBuffer(jsonStr))
+	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
 	lines := `http://www.bad.com,2
 http://www.google.com,0`
 	s := strings.NewReader(lines)
 	scorer, _ := scorer.New(s)
-
-	vars := map[string]string{
-		"url":   "www.bad.com",
-		"score": "2",
-	}
-	r = mux.SetURLVars(r, vars)
 
 	api := New(scorer)
 	api.UpdateDomainHandler(w, r)
